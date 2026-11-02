@@ -23,8 +23,21 @@ def prod(shape):
         total *= dim
     return total
 
-# Step 2 - argsort (not yet solved)
-# TODO: implement
+# Step 2 - argsort
+def argsort(values):
+    """Return the indices that would sort `values` in ascending order.
+
+    Args:
+        values: A sequence of comparable elements (e.g. list or tuple).
+
+    Returns:
+        list[int]: Positions p such that [values[p] for p in result]
+        is `values` sorted smallest to largest. The sort is stable:
+        when elements compare equal, the one appearing earlier in the
+        input keeps the smaller index, preserving original relative
+        order.
+    """
+    return sorted(range(len(values)), key=values.__getitem__)
 
 # Step 3 - make_op_enums (not yet solved)
 # TODO: implement
