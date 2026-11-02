@@ -180,8 +180,37 @@ def lazybuffer_binary_e(self, op, other):
 
 LazyBuffer.lazybuffer_binary_e = lazybuffer_binary_e
 
-# Step 9 - lazybuffer_r (not yet solved)
-# TODO: implement
+# Step 9 - lazybuffer_r
+_REDUCE_FNS = {
+    'SUM': np.sum,
+    'MAX': np.max,
+}
+
+
+def r(self, op, axis):
+    """Reduce the buffer along `axis` with a ReduceOps op (SUM or MAX).
+
+    Reduced dimensions are kept with size 1: reducing a (2, 3) buffer
+    over axis 1 yields shape (2, 1). Reducing over everything (axis
+    None) yields all-ones shape, e.g. (1, 1).
+
+    Args:
+        op: A ReduceOps enum member (SUM or MAX).
+        axis: int, tuple of ints, or None (reduce over all axes).
+            Negative axes count from the end, as in numpy.
+
+    Returns:
+        LazyBuffer: Brand-new buffer holding the reduced result. The
+        original buffer is unchanged.
+    """
+    try:
+        fn = _REDUCE_FNS[op.name]
+    except (AttributeError, KeyError):
+        raise ValueError(f"unsupported reduce op: {op!r}") from None
+    return LazyBuffer(fn(self._np, axis=axis, keepdims=True))
+
+
+LazyBuffer.r = r
 
 # Step 10 - lazybuffer_reshape (not yet solved)
 # TODO: implement
