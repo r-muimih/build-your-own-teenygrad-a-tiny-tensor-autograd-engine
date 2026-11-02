@@ -266,8 +266,33 @@ def expand(self, new_shape):
 
 LazyBuffer.expand = expand
 
-# Step 12 - lazybuffer_permute (not yet solved)
-# TODO: implement
+# Step 12 - lazybuffer_permute
+def permute(self, order):
+    """Return a new LazyBuffer with axes reordered according to `order`.
+
+    `order` lists the original axes in their new positions: axis k of
+    the result is axis order[k] of the input, so the result's shape is
+    recomputed as (self.shape[order[0]], self.shape[order[1]], ...).
+    Negative axes count from the end. The result owns its own memory
+    (a C-contiguous copy in the new layout); `self` is untouched.
+    """
+    if isinstance(order, int):              # convenience: 0 -> (0,)
+        order = (order,)
+    n = self._np.ndim
+    normalized = []
+    for ax in order:
+        ax = ax + n if ax < 0 else ax       # negative axes count from the end
+        if not 0 <= ax < n:
+            raise ValueError(f"... axis out of range ...")
+        normalized.append(ax)
+    if sorted(normalized) != list(range(n)):
+        raise ValueError(f"order {order} is not a permutation of axes 0..{n-1}")
+    # transpose returns a strided view; copy() materializes the new
+    # layout so the result owns its data (single-owner invariant).
+    return LazyBuffer(self._np.transpose(normalized).copy())
+
+
+LazyBuffer.permute = permute
 
 # Step 13 - Function (not yet solved)
 # TODO: implement
