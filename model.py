@@ -39,8 +39,23 @@ def argsort(values):
     """
     return sorted(range(len(values)), key=values.__getitem__)
 
-# Step 3 - make_op_enums (not yet solved)
-# TODO: implement
+# Step 3 - make_op_enums
+from enum import Enum
+
+
+def make_op_enums():
+    """Create the four enum classes that name every supported operation.
+
+    Returns:
+        tuple[Enum, Enum, Enum, Enum]: (UnaryOps, BinaryOps, ReduceOps,
+        MovementOps), each an `enum.Enum` whose members are exactly the
+        supported operation kinds for that category.
+    """
+    unary_ops = Enum('UnaryOps', ['NEG', 'RELU', 'LOG', 'EXP', 'SQRT', 'SIGMOID'])
+    binary_ops = Enum('BinaryOps', ['ADD', 'SUB', 'MUL', 'DIV', 'CMPLT', 'MAX'])
+    reduce_ops = Enum('ReduceOps', ['SUM', 'MAX'])
+    movement_ops = Enum('MovementOps', ['RESHAPE', 'EXPAND', 'PERMUTE'])
+    return unary_ops, binary_ops, reduce_ops, movement_ops
 
 # Step 4 - LazyBuffer (not yet solved)
 # TODO: implement
