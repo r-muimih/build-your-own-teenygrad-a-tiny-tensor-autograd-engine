@@ -118,8 +118,35 @@ def rand(shape, seed=None):
     rng = np.random.default_rng(seed)
     return LazyBuffer(rng.random(shape, dtype=np.float32))
 
-# Step 7 - lazybuffer_unary_e (not yet solved)
-# TODO: implement
+# Step 7 - lazybuffer_unary_e
+_UNARY_FNS = {
+    'NEG': np.negative,
+    'RELU': lambda x: np.maximum(x, 0),
+    'LOG': np.log,
+    'EXP': np.exp,
+    'SQRT': np.sqrt,
+    'SIGMOID': lambda x: 1.0 / (1.0 + np.exp(-x)),
+}
+
+
+def e(self, op):
+    """Apply a unary elementwise op and return the result as a new buffer.
+
+    Args:
+        op: A UnaryOps enum member (NEG, RELU, LOG, EXP, SQRT, SIGMOID).
+
+    Returns:
+        LazyBuffer: Brand-new buffer holding the elementwise result.
+        The original buffer and its underlying array are unchanged.
+    """
+    try:
+        fn = _UNARY_FNS[op.name]
+    except (AttributeError, KeyError):
+        raise ValueError(f"unsupported unary op: {op!r}") from None
+    return LazyBuffer(fn(self._np))
+
+
+LazyBuffer.e = e
 
 # Step 8 - lazybuffer_binary_e (not yet solved)
 # TODO: implement
