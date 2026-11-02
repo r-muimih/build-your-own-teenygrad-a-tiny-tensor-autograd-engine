@@ -212,8 +212,27 @@ def r(self, op, axis):
 
 LazyBuffer.r = r
 
-# Step 10 - lazybuffer_reshape (not yet solved)
-# TODO: implement
+# Step 10 - lazybuffer_reshape
+def reshape(self, new_shape):
+    """Return a new LazyBuffer reshaped to `new_shape`, data order intact.
+
+    The total number of elements must stay the same. One dimension may
+    be -1 and is inferred from the other dimensions. The result owns
+    its own memory (a copy), preserving the engine's single-owner
+    invariant: no two LazyBuffers ever share one backing array.
+
+    Args:
+        new_shape: Target shape — a tuple of ints (one may be -1).
+            A 1-element buffer may also be reshaped to () and back.
+
+    Returns:
+        LazyBuffer: New buffer with shape == new_shape (after -1
+        inference) and identical element ordering (C/row-major).
+    """
+    return LazyBuffer(self._np.reshape(new_shape).copy())
+
+
+LazyBuffer.reshape = reshape
 
 # Step 11 - lazybuffer_expand (not yet solved)
 # TODO: implement
