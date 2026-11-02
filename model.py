@@ -234,8 +234,37 @@ def reshape(self, new_shape):
 
 LazyBuffer.reshape = reshape
 
-# Step 11 - lazybuffer_expand (not yet solved)
-# TODO: implement
+# Step 11 - lazybuffer_expand
+def expand(self, new_shape):
+    """Broadcast size-1 dims of this buffer out to `new_shape`.
+
+    Aligned from the right, each axis of `new_shape` must either match
+    the buffer's axis length (kept as is) or the buffer's axis must be
+    1 (repeated to the requested length). New leading axes are allowed
+    and behave as size-1 axes being expanded. A scalar () buffer can
+    expand to any shape.
+    """
+    if isinstance(new_shape, int):          # convenience: 4 -> (4,)
+        new_shape = (new_shape,)
+    shape = self._np.shape
+    if len(new_shape) < len(shape):
+        raise ValueError(
+            f"cannot expand shape {shape} to {new_shape}: target has fewer dims")
+    padded = (1,) * (len(new_shape) - len(shape)) + shape
+    for cur, tgt in zip(padded, new_shape):
+        if tgt < 0:
+            raise ValueError(
+                f"cannot expand shape {shape} to {new_shape}: negative dim {tgt}")
+        if cur != 1 and cur != tgt:
+            raise ValueError(
+                f"cannot expand shape {shape} to {new_shape}: "
+                f"dim of size {cur} cannot expand to {tgt}")
+    # broadcast_to returns a stride-0 view; copy() materializes it so the
+    # new buffer owns its data (single-owner invariant) and self is safe.
+    return LazyBuffer(np.broadcast_to(self._np, new_shape).copy())
+
+
+LazyBuffer.expand = expand
 
 # Step 12 - lazybuffer_permute (not yet solved)
 # TODO: implement
