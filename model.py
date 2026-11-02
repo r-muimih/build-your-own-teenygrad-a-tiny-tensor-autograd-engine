@@ -148,8 +148,37 @@ def e(self, op):
 
 LazyBuffer.e = e
 
-# Step 8 - lazybuffer_binary_e (not yet solved)
-# TODO: implement
+# Step 8 - lazybuffer_binary_e
+_BINARY_FNS = {
+    'ADD': np.add,
+    'SUB': np.subtract,
+    'MUL': np.multiply,
+    'DIV': np.divide,
+    'CMPLT': lambda x, y: np.less(x, y).astype(np.float32),  # float 0/1 mask
+    'MAX': np.maximum,
+}
+
+
+def lazybuffer_binary_e(self, op, other):
+    """Apply a binary elementwise op between two buffers.
+
+    Args:
+        op: A BinaryOps enum member (ADD, SUB, MUL, DIV, CMPLT, MAX).
+        other: The second LazyBuffer operand; its shape may broadcast
+            against `self.shape`.
+
+    Returns:
+        LazyBuffer: Brand-new buffer holding the elementwise result.
+        Neither operand's underlying array is modified.
+    """
+    try:
+        fn = _BINARY_FNS[op.name]
+    except (AttributeError, KeyError):
+        raise ValueError(f"unsupported binary op: {op!r}") from None
+    return LazyBuffer(fn(self._np, other._np))
+
+
+LazyBuffer.lazybuffer_binary_e = lazybuffer_binary_e
 
 # Step 9 - lazybuffer_r (not yet solved)
 # TODO: implement
