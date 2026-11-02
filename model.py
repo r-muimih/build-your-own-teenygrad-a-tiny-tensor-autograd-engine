@@ -294,8 +294,27 @@ def permute(self, order):
 
 LazyBuffer.permute = permute
 
-# Step 13 - Function (not yet solved)
-# TODO: implement
+# Step 13 - Function
+class Function:
+    def __init__(self, *tensors):
+        # Per-input requirement flags, stored raw (True / False / None).
+        # An input that does not declare requires_grad (e.g. a raw
+        # LazyBuffer used as a constant) counts as False: no gradient.
+        self.needs_input_grad = [getattr(t, 'requires_grad', False) for t in tensors]
+        # Three-valued combination: True beats None beats False.
+        if any(f for f in self.needs_input_grad if f is not None):
+            self.requires_grad = True      # a gradient definitely flows
+        elif any(f is None for f in self.needs_input_grad):
+            self.requires_grad = None      # a gradient might flow
+        else:
+            self.requires_grad = False     # no gradient can flow
+        # Keep parent references only where a gradient may actually flow
+        # back. When none can (requires_grad is False), the attribute is
+        # left unset entirely so no bookkeeping survives on the instance.
+        if self.requires_grad is not False:
+            self.parents = tuple(
+                t for t, need in zip(tensors, self.needs_input_grad)
+                if need is not False)
 
 # Step 14 - function_forward_backward_stubs (not yet solved)
 # TODO: implement
