@@ -101,8 +101,22 @@ def const(value, shape):
 
 LazyBuffer.const = staticmethod(const)
 
-# Step 6 - rand (not yet solved)
-# TODO: implement
+# Step 6 - rand
+def rand(shape, seed=None):
+    """Return a LazyBuffer of uniform random floats in the interval [0, 1).
+
+    Args:
+        shape: Requested shape — a tuple of ints, a single int for 1-D,
+            or () for a scalar buffer.
+        seed: Optional seed. Passing the same seed makes the output fully
+            reproducible (identical values on every call); different seeds
+            — or None — give independent randomness.
+
+    Returns:
+        LazyBuffer: Buffer whose data is float32, with the requested shape.
+    """
+    rng = np.random.default_rng(seed)
+    return LazyBuffer(rng.random(shape, dtype=np.float32))
 
 # Step 7 - lazybuffer_unary_e (not yet solved)
 # TODO: implement
