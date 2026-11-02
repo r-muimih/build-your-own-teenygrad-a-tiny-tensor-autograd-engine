@@ -57,8 +57,27 @@ def make_op_enums():
     movement_ops = Enum('MovementOps', ['RESHAPE', 'EXPAND', 'PERMUTE'])
     return unary_ops, binary_ops, reduce_ops, movement_ops
 
-# Step 4 - LazyBuffer (not yet solved)
-# TODO: implement
+# Step 4 - LazyBuffer
+import numpy as np
+
+
+class LazyBuffer:
+    """Wraps data as an ndarray and exposes shape/dtype for introspection.
+
+    The raw ndarray lives on `self._np`; everything else in the engine
+    reads `self.shape` and `self.dtype` and never touches the raw array
+    directly.
+    """
+
+    def __init__(self, np_array):
+        # Convert lists, tuples, scalars, ... into an ndarray. `asarray`
+        # does not copy data that is already an ndarray, so wrapping an
+        # existing array keeps it as the single shared source of truth.
+        self._np = np.asarray(np_array)
+        # Record the metadata up front so callers can introspect a
+        # buffer (shape, dtype) without reaching into _np.
+        self.shape = self._np.shape
+        self.dtype = self._np.dtype
 
 # Step 5 - lazybuffer_const (not yet solved)
 # TODO: implement
