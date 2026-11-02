@@ -79,8 +79,27 @@ class LazyBuffer:
         self.shape = self._np.shape
         self.dtype = self._np.dtype
 
-# Step 5 - lazybuffer_const (not yet solved)
-# TODO: implement
+# Step 5 - lazybuffer_const
+def const(value, shape):
+    """Create a new LazyBuffer of `shape` filled entirely with `value`.
+
+    The backing array is always float32 so the result plugs directly
+    into the rest of the lazy backend. This is the workhorse used to
+    materialize zeros, ones, and broadcast scalars during the backward
+    pass.
+
+    Args:
+        value: The constant to fill with (int or float, cast to float32).
+        shape: Requested shape — a tuple of ints, a single int, or ()
+        for a scalar buffer.
+
+    Returns:
+        LazyBuffer: Fresh buffer with shape == shape and float32 dtype.
+    """
+    return LazyBuffer(np.full(shape, value, dtype=np.float32))
+
+
+LazyBuffer.const = staticmethod(const)
 
 # Step 6 - rand (not yet solved)
 # TODO: implement
