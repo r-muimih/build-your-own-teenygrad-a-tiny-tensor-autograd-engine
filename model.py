@@ -316,8 +316,29 @@ class Function:
                 t for t, need in zip(tensors, self.needs_input_grad)
                 if need is not False)
 
-# Step 14 - function_forward_backward_stubs (not yet solved)
-# TODO: implement
+# Step 14 - function_forward_backward_stubs
+def _forward_stub(self, *args, **kwargs):
+    # Permissive signature: a forgotten override must surface as this
+    # NotImplementedError, never as a TypeError about argument counts.
+    raise NotImplementedError(
+        f"{type(self).__name__}.forward is not implemented")
+
+
+def _backward_stub(self, *args, **kwargs):
+    raise NotImplementedError(
+        f"{type(self).__name__}.backward is not implemented")
+
+
+def function_forward_backward_stubs():
+    """Attach base forward/backward stubs to Function.
+
+    Any subclass that forgets to override one of the methods fails
+    loudly with NotImplementedError (naming the class that forgot)
+    instead of silently returning nothing.
+    """
+    Function.forward = _forward_stub
+    Function.backward = _backward_stub
+    return Function
 
 # Step 15 - apply (not yet solved)
 # TODO: implement
